@@ -1,0 +1,450 @@
+<html>
+ <HEAD>
+  <TITLE>Calculador de M&aacute;scara de Sub-Rede</TITLE>
+<link href="padrao.css" rel="stylesheet" type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></HEAD>
+ <BODY bgcolor="#006699">
+<table width="70%" border="0" align="center" cellpadding="0" cellspacing="1" bgcolor="#003366">
+  <tr> 
+    <td> <form><br><br>
+
+        <table width="100%" border=0 cellpadding=3 cellspacing="0" bgcolor="#EEEEEE">
+          <tr bgcolor="#FFFFFF"> 
+            <td height="30" colspan="2"><b>Calculadora de M&aacute;scara de Sub-Rede</b> <script language="JavaScript">
+<!--- Hide script from old browsers
+//This source code is copyright 1997 by Al Vonkeman.  You may use the code as long as 
+//this copyright notice is included.
+//
+//This function calculates the network class and subnet mask
+function compute2(f)
+  {
+  var node=parseInt(f.node.value);
+  if (node > 0) f.network.value=0;
+  if (node > 0) node=node+2;
+  var nw=parseInt(f.network.value);
+  var power2a=2;
+  var power2b=4;
+  var power2c=0;
+  //This section rounds the number of networks or nodes to a multiple of 2
+  while (power2b < 16777216)
+    {
+    if ((node > power2a ) && (node <= power2b)) node=power2b;
+    if ((nw > power2a ) && (nw <= power2b)) nw=power2b;
+    power2a=power2b;
+    power2b=power2b*2;
+    }
+    
+  //Set the number of networks to 1 if 0 was entered
+  if (nw == 0) nw = 1;
+  //Determine the class of network and calculate the subnet mask
+  if ((f.oct1.value > 0) && (f.oct1.value < 127)) f.nwclass.value="Class A";
+  if ((f.oct1.value > 127) && (f.oct1.value < 192)) f.nwclass.value="Class B";
+  if ((f.oct1.value > 191) && (f.oct1.value < 224)) f.nwclass.value="Class C";
+  if ((f.oct1.value < 1) || (f.oct1.value > 223))
+    {
+    f.nwclass.value="Illegal";
+    f.nwclass1.value="Illegal";
+    f.nwquant.value=0;
+    f.nodequant.value=0;
+    f.snm1.value=0;
+    f.snm2.value=0;
+    f.snm3.value=0;
+    f.snm4.value=0;
+    f.snmbits.value=0;
+    }
+
+  if ((f.oct1.value > 0) && (f.oct1.value < 224) && (f.oct2.value == 0) && (f.oct3.value == 0))
+    {
+    if (nw > 4194304) nw = 4194304;
+    if (node > 16777216) node = 16777216;
+    if (node > 2) nw = 16777216/node;
+    var nwtemp=nw;
+    while (nwtemp > 1 )
+      {
+      nwtemp=nwtemp/2;
+      power2c=power2c+1;
+      }
+    f.nwclass1.value="Class A";
+    f.nwquant.value=nw;
+    f.nodequant.value=16777216/nw-2;
+    f.snm1.value=255;
+    f.snm2.value=(~((256/nw)-1) & 255);
+    f.snm3.value=(~((256/(nw/256))-1) & 255);
+    f.snm4.value=(~((256/(nw/65536))-1) & 255);
+    snmbits=power2c+8;
+    f.snmbits.value="/"+snmbits;
+    }
+  if ((f.oct1.value > 0) && (f.oct1.value < 224) && (f.oct2.value > 0) && (f.oct3.value == 0))
+    {
+    if (nw > 16384) nw = 16384;
+    if (node > 65536) node = 65536;
+    if (node > 2) nw = 65536/node;
+    var nwtemp=nw;
+    while (nwtemp > 1 )
+      {
+      nwtemp=nwtemp/2;
+      power2c=power2c+1;
+      }
+    f.nwclass1.value="Class B";
+    f.nwquant.value=nw;
+    f.nodequant.value=65536/nw-2;
+    f.snm1.value=255;
+    f.snm2.value=255;
+    f.snm3.value=(~((256/nw)-1) & 255);
+    f.snm4.value=(~((256/(nw/256))-1) & 255);
+    snmbits=power2c+16;
+    f.snmbits.value="/"+snmbits;
+    }
+  if ((f.oct1.value > 0) && (f.oct1.value < 224) && (f.oct2.value > 0) && (f.oct3.value > 0))
+    {
+    if (nw > 64) nw = 64;
+    if (node > 256) node = 256;
+    if (node > 2) nw = 256/node;
+    var nwtemp=nw;
+    while (nwtemp > 1 )
+      {
+      nwtemp=nwtemp/2;
+      power2c=power2c+1;
+      }
+    f.nwclass1.value="Class C";
+    f.nwquant.value=nw;
+    f.nodequant.value=256/nw-2;
+    f.snm1.value=255;
+    f.snm2.value=255;
+    f.snm3.value=255;
+    f.snm4.value=(~((256/nw)-1) & 255);
+    snmbits=power2c+24;
+    f.snmbits.value="/"+snmbits;
+    }
+  }
+//This function opens a new window and lists the subnets
+function listsubnets(f)
+  {
+  SubnetWindow=window.open("","JanelaSubnet","scrollbars=yes,menubar=no,status=yes");
+  SubnetWindow.document.write("<link href='padrao.css' rel='stylesheet' type='text/css'><h1>Lista de Subnets</h1>");
+  SubnetWindow.document.write("<h4>Para a rede "+f.oct1.value+"."+f.oct2.value+"."+f.oct3.value+"."+f.oct4.value+" ");
+  SubnetWindow.document.write("com a m  SubnetWindow.document.write("<table border=0 cellpadding=3 cellspacing=1 bgcolor=#006699 width=100%>");
+  SubnetWindow.document.write("<tr bgcolor=#006699><td><strong><font color=#FFFFFF>Rede</font></td><td><strong><font color=#FFFFFF>Hosts</font></td><td><strong><font color=#FFFFFF>Broadcast</font></td></tr>");
+  networks=f.nwquant.value;
+  SubnetWindow.status="Construindo a tabela";
+  if (f.nwclass1.value == "Class C")
+    {
+    nodes = ((256/networks));
+    for (var i=0; i < 256; i=i+nodes)
+      {
+      j=i+1;
+      topi = (i+nodes-1) & 255;
+      topj = topi-1;
+      SubnetWindow.document.write("<tr bgcolor=#FFFFFF><td>"+f.oct1.value+"."+f.oct2.value+"."+f.oct3.value+"."+ i +"</td><td>"+f.oct1.value+"."+f.oct2.value+"."+f.oct3.value+"."+ j +" at      } 
+    }
+  if (f.nwclass1.value == "Class B")
+    {
+    nodes = ((65536/networks));
+    for (var i=0; i < 65536; i=i+nodes)
+      {
+      i4 = i & 255;
+      i3 = (i/256) & 255;
+      j=i4+1;
+      topi4 = ((i+nodes)-1) & 255;
+      topi3 = ((i+nodes)/256 -1) & 255;
+      topj = topi4-1;
+      SubnetWindow.document.write("<tr bgcolor=#FFFFFF><td>"+f.oct1.value+"."+f.oct2.value+"."+ i3 +"."+ i4 +"</td><td>"+f.oct1.value+"."+f.oct2.value+"."+ i3 +"."+ j +" at      } 
+    }
+  if (f.nwclass1.value == "Class A")
+    {
+    nodes = ((16777216/networks));
+    for (var i=0; i < 16777216; i=i+nodes)
+      {
+      i4 = i & 255;
+      i3 = (i/256) & 255;
+      i2 = (i/65536) & 255;
+      j=i4+1;
+      topi4 = ((i+nodes)-1) & 255;
+      topi3 = ((i+nodes)/256 -1) & 255;
+      topi2 = ((i+nodes)/65536 -1)& 255
+      topj = topi4-1;
+      SubnetWindow.document.write("<tr bgcolor=#FFFFFF><td>"+f.oct1.value+"."+ i2 +"."+ i3 +"."+ i4 +"</td><td>"+f.oct1.value+"."+ i2 +"."+ i3 +"."+ j +" at      } 
+    }
+  SubnetWindow.document.write("</table>");
+  SubnetWindow.status="Done";
+  }
+//This function transfers the tcpip network address and subnet mask from the first section
+//to the second
+function load(f)
+  {
+  f.snm1a.value = f.snm1.value;
+  f.oct1a.value = f.oct1.value;
+  f.snm2a.value = f.snm2.value;
+  f.oct2a.value = f.oct2.value;
+  f.snm3a.value = f.snm3.value;
+  f.oct3a.value = f.oct3.value;
+  f.snm4a.value = f.snm4.value;
+  f.oct4a.value = f.oct4.value;
+  }
+//This function calculates the network and node parts of a tcpip address
+function compute(f)
+  {
+  f.nw1a.value = eval(f.snm1a.value & f.oct1a.value);
+  f.nw2a.value = eval(f.snm2a.value & f.oct2a.value);
+  f.nw3a.value = eval(f.snm3a.value & f.oct3a.value);
+  f.nw4a.value = eval(f.snm4a.value & f.oct4a.value);
+  f.node1a.value = eval(~ f.snm1a.value & f.oct1a.value);
+  f.node2a.value = eval(~ f.snm2a.value & f.oct2a.value);
+  f.node3a.value = eval(~ f.snm3a.value & f.oct3a.value);
+  f.node4a.value = eval(~ f.snm4a.value & f.oct4a.value);
+  }
+ // end hiding from old browsers -->
+</script> </td>
+          </tr>
+          <tr> 
+            <td align="right">Digite o endere&ccedil;o IP:</td>
+            <td align=left> <INPUT NAME="oct1" TYPE="text" class="caixa" value=161 SIZE=3 maxlength=3> 
+              <INPUT NAME="oct2" TYPE="text" class="caixa" value=148 SIZE=3 maxlength=3> 
+              <INPUT NAME="oct3" TYPE="text" class="caixa" value=0 SIZE=3 maxlength=3> 
+              <INPUT NAME="oct4" TYPE="text" class="caixa" value=0 SIZE=3 maxlength=3></td>
+          </tr>
+          <tr> 
+            <td align="right">Digite o n&uacute;mero requerido de sub-redes:</td>
+            <td align=left><INPUT NAME="network" TYPE="text" class="caixa" value=12 SIZE=8 maxlength=8></td>
+          </tr>
+          <tr> 
+            <td width=300 align="right"><b>OU</b> digite o n&uacute;mero requerido 
+              <br>
+              de n&oacute;s/hosts por sub-rede:</td>
+            <td align=left><INPUT NAME="node" TYPE="text" class="caixa" SIZE=8 maxlength=8></td>
+          </tr>
+          <tr> 
+            <td>&nbsp;</td>
+            <td align=right><INPUT TYPE="button" class="botao" onClick="compute2(this.form)" VALUE="Calcular"></td>
+          </tr>
+          <tr bgcolor="#003366"> 
+            <td height="2" colspan=2></td>
+          </tr>
+        </table>
+        <table width="100%" border=0 cellpadding=3 cellspacing="0" bgcolor="#EEEEEE">
+          <tr> 
+          <tr> 
+            <td align="right">Classe da Rede:</td>
+            <td align="left"><INPUT NAME="nwclass" TYPE="text" disabled class="caixa" SIZE=6 maxlength=6>
+              sub-redes como 
+              <INPUT NAME="nwclass1" TYPE="text" disabled class="caixa" SIZE=6 maxlength=6></td>
+          </tr>
+          <tr> 
+            <td align="right">M&aacute;scara da Sub-rede:</td>
+            <td align=left><INPUT NAME="snm1" TYPE="text" disabled class="caixa" SIZE=3 maxlength=3> 
+              <INPUT NAME="snm2" TYPE="text" disabled class="caixa" SIZE=3 maxlength=3> 
+              <INPUT NAME="snm3" TYPE="text" disabled class="caixa" SIZE=3 maxlength=3> 
+              <INPUT NAME="snm4" TYPE="text" disabled class="caixa" SIZE=3 maxlength=3>
+              ou 
+              <INPUT NAME="snmbits" TYPE="text" disabled class="caixa" SIZE=3 maxlength=3></td>
+          </tr>
+          <tr> 
+            <td align="right">Sub-redes:</td>
+            <td align=left><INPUT NAME="nwquant" TYPE="text" disabled class="caixa" SIZE=8 maxlength=8></td>
+          </tr>
+          <tr> 
+            <td align="right">N&oacute;s/Hosts por Rede:</td>
+            <td align=left><INPUT NAME="nodequant" TYPE="text" disabled class="caixa" SIZE=8 maxlength=8></td>
+          </tr>
+          <tr> 
+            <td>&nbsp;</td>
+            <td align=right><script language="JavaScript">
+<!--- Hide script from old browsers
+//This source code is copyright 1997 by Al Vonkeman.  You may use the code as long as 
+//this copyright notice is included.
+//
+//This function calculates the network class and subnet mask
+function compute2(f)
+  {
+  var node=parseInt(f.node.value);
+  if (node > 0) f.network.value=0;
+  if (node > 0) node=node+2;
+  var nw=parseInt(f.network.value);
+  var power2a=2;
+  var power2b=4;
+  var power2c=0;
+  //This section rounds the number of networks or nodes to a multiple of 2
+  while (power2b < 16777216)
+    {
+    if ((node > power2a ) && (node <= power2b)) node=power2b;
+    if ((nw > power2a ) && (nw <= power2b)) nw=power2b;
+    power2a=power2b;
+    power2b=power2b*2;
+    }
+    
+  //Set the number of networks to 1 if 0 was entered
+  if (nw == 0) nw = 1;
+  //Determine the class of network and calculate the subnet mask
+  if ((f.oct1.value > 0) && (f.oct1.value < 127)) f.nwclass.value="Class A";
+  if ((f.oct1.value > 127) && (f.oct1.value < 192)) f.nwclass.value="Class B";
+  if ((f.oct1.value > 191) && (f.oct1.value < 224)) f.nwclass.value="Class C";
+  if ((f.oct1.value < 1) || (f.oct1.value > 223))
+    {
+    f.nwclass.value="Illegal";
+    f.nwclass1.value="Illegal";
+    f.nwquant.value=0;
+    f.nodequant.value=0;
+    f.snm1.value=0;
+    f.snm2.value=0;
+    f.snm3.value=0;
+    f.snm4.value=0;
+    f.snmbits.value=0;
+    }
+
+  if ((f.oct1.value > 0) && (f.oct1.value < 224) && (f.oct2.value == 0) && (f.oct3.value == 0))
+    {
+    if (nw > 4194304) nw = 4194304;
+    if (node > 16777216) node = 16777216;
+    if (node > 2) nw = 16777216/node;
+    var nwtemp=nw;
+    while (nwtemp > 1 )
+      {
+      nwtemp=nwtemp/2;
+      power2c=power2c+1;
+      }
+    f.nwclass1.value="Class A";
+    f.nwquant.value=nw;
+    f.nodequant.value=16777216/nw-2;
+    f.snm1.value=255;
+    f.snm2.value=(~((256/nw)-1) & 255);
+    f.snm3.value=(~((256/(nw/256))-1) & 255);
+    f.snm4.value=(~((256/(nw/65536))-1) & 255);
+    snmbits=power2c+8;
+    f.snmbits.value="/"+snmbits;
+    }
+  if ((f.oct1.value > 0) && (f.oct1.value < 224) && (f.oct2.value > 0) && (f.oct3.value == 0))
+    {
+    if (nw > 16384) nw = 16384;
+    if (node > 65536) node = 65536;
+    if (node > 2) nw = 65536/node;
+    var nwtemp=nw;
+    while (nwtemp > 1 )
+      {
+      nwtemp=nwtemp/2;
+      power2c=power2c+1;
+      }
+    f.nwclass1.value="Class B";
+    f.nwquant.value=nw;
+    f.nodequant.value=65536/nw-2;
+    f.snm1.value=255;
+    f.snm2.value=255;
+    f.snm3.value=(~((256/nw)-1) & 255);
+    f.snm4.value=(~((256/(nw/256))-1) & 255);
+    snmbits=power2c+16;
+    f.snmbits.value="/"+snmbits;
+    }
+  if ((f.oct1.value > 0) && (f.oct1.value < 224) && (f.oct2.value > 0) && (f.oct3.value > 0))
+    {
+    if (nw > 64) nw = 64;
+    if (node > 256) node = 256;
+    if (node > 2) nw = 256/node;
+    var nwtemp=nw;
+    while (nwtemp > 1 )
+      {
+      nwtemp=nwtemp/2;
+      power2c=power2c+1;
+      }
+    f.nwclass1.value="Class C";
+    f.nwquant.value=nw;
+    f.nodequant.value=256/nw-2;
+    f.snm1.value=255;
+    f.snm2.value=255;
+    f.snm3.value=255;
+    f.snm4.value=(~((256/nw)-1) & 255);
+    snmbits=power2c+24;
+    f.snmbits.value="/"+snmbits;
+    }
+  }
+//This function opens a new window and lists the subnets
+function listsubnets(f)
+  {
+  SubnetWindow=window.open("","JanelaSubnet","scrollbars=yes,menubar=no,status=yes");
+  SubnetWindow.document.write("<link href='padrao.css' rel='stylesheet' type='text/css'><h1>Lista de Subnets</h1>");
+  SubnetWindow.document.write("<h4>Para a rede "+f.oct1.value+"."+f.oct2.value+"."+f.oct3.value+"."+f.oct4.value+" ");
+  SubnetWindow.document.write("com a m  SubnetWindow.document.write("<table border=0 cellpadding=3 cellspacing=1 bgcolor=#006699 width=100%>");
+  SubnetWindow.document.write("<tr bgcolor=#006699><td><strong><font color=#FFFFFF>Rede</font></td><td><strong><font color=#FFFFFF>Hosts</font></td><td><strong><font color=#FFFFFF>Broadcast</font></td></tr>");
+  networks=f.nwquant.value;
+  SubnetWindow.status="Construindo a tabela";
+  if (f.nwclass1.value == "Class C")
+    {
+    nodes = ((256/networks));
+    for (var i=0; i < 256; i=i+nodes)
+      {
+      j=i+1;
+      topi = (i+nodes-1) & 255;
+      topj = topi-1;
+      SubnetWindow.document.write("<tr bgcolor=#FFFFFF><td>"+f.oct1.value+"."+f.oct2.value+"."+f.oct3.value+"."+ i +"</td><td>"+f.oct1.value+"."+f.oct2.value+"."+f.oct3.value+"."+ j +" at      } 
+    }
+  if (f.nwclass1.value == "Class B")
+    {
+    nodes = ((65536/networks));
+    for (var i=0; i < 65536; i=i+nodes)
+      {
+      i4 = i & 255;
+      i3 = (i/256) & 255;
+      j=i4+1;
+      topi4 = ((i+nodes)-1) & 255;
+      topi3 = ((i+nodes)/256 -1) & 255;
+      topj = topi4-1;
+      SubnetWindow.document.write("<tr bgcolor=#FFFFFF><td>"+f.oct1.value+"."+f.oct2.value+"."+ i3 +"."+ i4 +"</td><td>"+f.oct1.value+"."+f.oct2.value+"."+ i3 +"."+ j +" at      } 
+    }
+  if (f.nwclass1.value == "Class A")
+    {
+    nodes = ((16777216/networks));
+    for (var i=0; i < 16777216; i=i+nodes)
+      {
+      i4 = i & 255;
+      i3 = (i/256) & 255;
+      i2 = (i/65536) & 255;
+      j=i4+1;
+      topi4 = ((i+nodes)-1) & 255;
+      topi3 = ((i+nodes)/256 -1) & 255;
+      topi2 = ((i+nodes)/65536 -1)& 255
+      topj = topi4-1;
+      SubnetWindow.document.write("<tr bgcolor=#FFFFFF><td>"+f.oct1.value+"."+ i2 +"."+ i3 +"."+ i4 +"</td><td>"+f.oct1.value+"."+ i2 +"."+ i3 +"."+ j +" at      } 
+    }
+  SubnetWindow.document.write("</table>");
+  SubnetWindow.status="Done";
+  }
+//This function transfers the tcpip network address and subnet mask from the first section
+//to the second
+function load(f)
+  {
+  f.snm1a.value = f.snm1.value;
+  f.oct1a.value = f.oct1.value;
+  f.snm2a.value = f.snm2.value;
+  f.oct2a.value = f.oct2.value;
+  f.snm3a.value = f.snm3.value;
+  f.oct3a.value = f.oct3.value;
+  f.snm4a.value = f.snm4.value;
+  f.oct4a.value = f.oct4.value;
+  }
+//This function calculates the network and node parts of a tcpip address
+function compute(f)
+  {
+  f.nw1a.value = eval(f.snm1a.value & f.oct1a.value);
+  f.nw2a.value = eval(f.snm2a.value & f.oct2a.value);
+  f.nw3a.value = eval(f.snm3a.value & f.oct3a.value);
+  f.nw4a.value = eval(f.snm4a.value & f.oct4a.value);
+  f.node1a.value = eval(~ f.snm1a.value & f.oct1a.value);
+  f.node2a.value = eval(~ f.snm2a.value & f.oct2a.value);
+  f.node3a.value = eval(~ f.snm3a.value & f.oct3a.value);
+  f.node4a.value = eval(~ f.snm4a.value & f.oct4a.value);
+  }
+ // end hiding from old browsers -->
+</script>
+              <INPUT TYPE="button" class="botao" onClick="listsubnets(this.form)" VALUE="Listar Sub-redes"></td>
+          </tr>
+        </table>
+        </form>
+</td>
+  </tr>
+</table>
+<div align="right"><br>
+  <font size="1" face="Verdana, Arial, Helvetica, sans-serif"><a href="http://www.linuxbras.com.br"><img src="../imagens/home1.gif" width="14" height="14" border="0" align="absmiddle"> Voltar ao in&iacute;cio</a></font>&nbsp;  <BR>
+</div>
+<TR>
+  <TD VALIGN=TOP><TR>
+      
+  <TD VALIGN=TOP CLASS="boxBg">
+
